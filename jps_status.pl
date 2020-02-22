@@ -1,6 +1,6 @@
-$jpsip = $ENV{'JPS'};
+$jpsuid = $ENV{'JPS'};
 
-for (`psql.exe -U jbl -d jbl -t -c "select distinct(pa.peripheral_id), pa.ip, ps.status, pa.type from jps_peripheral_status ps join jps_authenticated_device pa on ps.peripheral_id = pa.peripheral_id where pa.peripheral_id = \'$jpsip\' " | sed 's/|//g'| head --lines=-1`)
+for (`psql.exe -U jbl -d jbl -t -c "select distinct(pa.peripheral_id), pa.ip, ps.status, pa.type from jps_authenticated_device pa join jps_peripheral_status ps on ps.peripheral_id = pa.peripheral_id where pa.peripheral_id = \'$jpsuid\' " | sed 's/|//g'| head --lines=-1`)
 {	
 	($jpsuid, $jpsip , $jpsstatus, $jpstype ) = m/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/;	
 
