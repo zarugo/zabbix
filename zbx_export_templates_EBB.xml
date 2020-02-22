@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.4</version>
-    <date>2020-02-22T08:27:17Z</date>
+    <date>2020-02-22T10:03:41Z</date>
     <groups>
         <group>
             <name>Faac Poland</name>
@@ -114,16 +114,16 @@ UID: \2 IP: \4 STATUS: \6 TYPE: \8</params>
                 </macro>
                 <macro>
                     <macro>{$JPSINV1}</macro>
-                    <value>JGpwc2lwID0gJEVOVnsnSlBTJ307CmZvciAoYHBzcWwuZXhlIC1VIGpibCAtZCBqYmwgLXQgLWMgInNlbGVjdCBkaXN0aW5jdChwYS5wZXJpcGhlcmFsX2lkKSwgcGEuaXAsIHBzLnN0YXR1cywgcGEudHlwZSBmcm9tIGpwc19wZXJpcGhlcmFsX3N0YXR1cyBwcyBqb2luIGpwc19hdXRoZW50aWNhdGVkX2RldmljZSBwYSBvbiBwcy5w</value>
-                    <description>$jpsip = $ENV{'JPS'};for (`psql.exe -U jbl -d jbl -t -c &quot;select distinct(pa.peripheral_id), pa.ip, ps.status, pa.type from jps_peripheral_status ps join jps_authenticated_device pa on ps.peripheral_id = pa.peripheral_id where pa.peripheral_id = \'$jpsip\' &quot; | sed 's/|//g'| head --lines=-1`){	($jpsuid, $jpsip , $jpsstatus, $jpstype ) = m/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/;	print &quot;\t{\n&quot;;	print &quot;\t\t\&quot;uid\&quot;:\&quot;$jpsuid\&quot;,\n&quot;;	print &quot;\t\t\&quot;ip\&quot;:\&quot;$jpsip\&quot;,\n&quot;;	print &quot;\t\t\&quot;status\&quot;:\&quot;$jpsstatus\&quot;,\n&quot;;    print &quot;\t\t\&quot;type\&quot;:\&quot;$jpstype\&quot;\n&quot;;	print &quot;\t}\n&quot;;}</description>
+                    <value>JGpwc3VpZCA9ICRFTlZ7J0pQUyd9Ow0KZm9yIChgcHNxbC5leGUgLVUgamJsIC1kIGpibCAtdCAtYyAic2VsZWN0IGRpc3RpbmN0KHBhLnBlcmlwaGVyYWxfaWQpLCBwYS5pcCwgcHMuc3RhdHVzLCBwYS50eXBlIGZyb20ganBzX2F1dGhlbnRpY2F0ZWRfZGV2aWNlIHBhIGpvaW4ganBzX3BlcmlwaGVyYWxfc3RhdHVzIHBzIG9uIHBzLnB</value>
+                    <description>$jpsuid = $ENV{'JPS'};for (`psql.exe -U jbl -d jbl -t -c &quot;select distinct(pa.peripheral_id), pa.ip, ps.status, pa.type from jps_authenticated_device pa join jps_peripheral_status ps on ps.peripheral_id = pa.peripheral_id where pa.peripheral_id = \'$jpsuid\' &quot; | sed 's/|//g'| head --lines=-1`){	($jpsuid, $jpsip , $jpsstatus, $jpstype ) = m/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/;	print &quot;\t{\n&quot;;	print &quot;\t\t\&quot;uid\&quot;:\&quot;$jpsuid\&quot;,\n&quot;;	print &quot;\t\t\&quot;ip\&quot;:\&quot;$jpsip\&quot;,\n&quot;;	print &quot;\t\t\&quot;status\&quot;:\&quot;$jpsstatus\&quot;,\n&quot;;        print &quot;\t\t\&quot;type\&quot;:\&quot;$jpstype\&quot;\n&quot;;	print &quot;\t}\n&quot;;}</description>
                 </macro>
                 <macro>
                     <macro>{$JPSINV2}</macro>
-                    <value>ZXJpcGhlcmFsX2lkID0gcGEucGVyaXBoZXJhbF9pZCB3aGVyZSBwYS5wZXJpcGhlcmFsX2lkID0gXCckanBzaXBcJyAiIHwgc2VkICdzL3wvL2cnfCBoZWFkIC0tbGluZXM9LTFgKQp7CgkoJGpwc3VpZCwgJGpwc2lwICwgJGpwc3N0YXR1cywgJGpwc3R5cGUgKSA9IG0vKFxTKylccysoXFMrKVxzKyhcUyspXHMrKFxTKykvOwoJcHJp</value>
+                    <value>lcmlwaGVyYWxfaWQgPSBwYS5wZXJpcGhlcmFsX2lkIHdoZXJlIHBhLnBlcmlwaGVyYWxfaWQgPSBcJyRqcHN1aWRcJyAiIHwgc2VkICdzL3wvL2cnfCBoZWFkIC0tbGluZXM9LTFgKQ0KeygkanBzdWlkLCAkanBzaXAgLCAkanBzc3RhdHVzLCAkanBzdHlwZSApID0gbS8oXFMrKVxzKyhcUyspXHMrKFxTKylccysoXFMrKS87cHJpbnQgIl</value>
                 </macro>
                 <macro>
                     <macro>{$JPSINV3}</macro>
-                    <value>bnQgIlx0e1xuIjsKCXByaW50ICJcdFx0XCJ1aWRcIjpcIiRqcHN1aWRcIixcbiI7CglwcmludCAiXHRcdFwiaXBcIjpcIiRqcHNpcFwiLFxuIjsKCXByaW50ICJcdFx0XCJzdGF0dXNcIjpcIiRqcHNzdGF0dXNcIixcbiI7CiAgICBwcmludCAiXHRcdFwidHlwZVwiOlwiJGpwc3R5cGVcIlxuIjsKCXByaW50ICJcdH1cbiI7Cgp9CgoK</value>
+                    <value>x0e1xuIjtwcmludCAiXHRcdFwidWlkXCI6XCIkanBzdWlkXCIsXG4iO3ByaW50ICJcdFx0XCJpcFwiOlwiJGpwc2lwXCIsXG4iO3ByaW50ICJcdFx0XCJzdGF0dXNcIjpcIiRqcHNzdGF0dXNcIixcbiI7cHJpbnQgIlx0XHRcInR5cGVcIjpcIiRqcHN0eXBlXCJcbiI7cHJpbnQgIlx0fVxuIjt9</value>
                 </macro>
             </macros>
         </template>
