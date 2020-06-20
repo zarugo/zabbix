@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2020-06-20T12:50:11Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Hubparking JPS</template>
+            <name>Template Hubparking JPS</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>JPS Devices Info</name>
+                </application>
+            </applications>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>JPS Devices Discovery</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;export PGPASSWORD=jbl; echo  {$JPSDISCOVER1}{$JPSDISCOVER2}{$JPSDISCOVER3}| base64 -d | perl&quot;]</key>
+                    <delay>1h</delay>
+                    <lifetime>7d</lifetime>
+                    <description>The Base64 string is a Perl script to query the JBL db and export a Json with the JPS devices. See the macros.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>JPS ({#JPSUID}) Version</name>
+                            <type>ZABBIX_ACTIVE</type>
+                            <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;curl -s -m 5 {#JPSIP}:65000/jps/api/command/version &quot;]</key>
+                            <delay>1h</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>JPS Devices Info</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.version</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>JPS Device ({#JPSUID}) Information</name>
+                            <type>ZABBIX_ACTIVE</type>
+                            <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;export JPS={#JPSUID}; export PGPASSWORD=jbl; echo {$JPSINV1}{$JPSINV2}{$JPSINV3}{$JPSINV4} |base64 -d |perl&quot;]</key>
+                            <delay>15s</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>JPS Devices Info</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[*]</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(\[&quot;)(.*)(&quot;,&quot;)(.*)(&quot;,&quot;)(.*)(&quot;.&quot;)(.*)(&quot;\])
+UID: \2 IP: \4 STATUS: \6 TYPE: \8</params>
+                                </step>
+                            </preprocessing>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{iregexp(Offline)}&gt;0</expression>
+                                    <name>JPS ({#JPSUID}) with IP ({#JPSIP}) Type ({#JPSTYPE}) is Offline</name>
+                                    <priority>HIGH</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Zabbix agent is not available (or nodata for {$AGENT.NODATA_TIMEOUT})</name>
+                                            <expression>{Template Module Zabbix agent active:agent.ping.nodata({$AGENT.NODATA_TIMEOUT})}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$JPSDISCOVER1}</macro>
+                    <value>JGZpcnN0ID0gMTsKcHJpbnQgIltcbiI7CmZvciAoYHBzcWwuZXhlIC1VIGpibCAtZCBqYmwgLXQgLWMgInNlbGVjdCBkaXN0aW5jdChwYS5wZXJpcGhlcmFsX2lkKSwgcGEuaXAsIHBhLnR5cGUgZnJvbSBqcHNfcGVyaXBoZXJhbF9zdGF0dXMgcHMgam9pbiBqcHNfYXV0aGVudGljYXRlZF9kZXZpY2UgcGEgb24gcHMucGVyaXBoZXJh</value>
+                    <description>$first = 1;print &quot;[\n&quot;;for (`psql.exe -U jbl -d jbl -t -c &quot;select distinct(pa.peripheral_id), pa.ip, pa.type from jps_peripheral_status ps join jps_authenticated_device pa on ps.peripheral_id = pa.peripheral_id &quot; | sed 's/|//g'| head --lines=-1`){	($jpsuid, $jpsip , $jpstype) = m/(\S+)\s+(\S+)\s+(\S+)/;	print &quot;\t,\n&quot; if not $first;	$first = 0;	print &quot;\t{\n&quot;;	print &quot;\t\t\&quot;{#JPSUID}\&quot;:\&quot;$jpsuid\&quot;,\n&quot;;	print &quot;\t\t\&quot;{#JPSIP}\&quot;:\&quot;$jpsip\&quot;,\n&quot;;        print &quot;\t\t\&quot;{#JPSTYPE}\&quot;:\&quot;$jpstype\&quot;\n&quot;;	print &quot;\t}\n&quot;;}print &quot;]\n&quot;;</description>
+                </macro>
+                <macro>
+                    <macro>{$JPSDISCOVER2}</macro>
+                    <value>bF9pZCA9IHBhLnBlcmlwaGVyYWxfaWQgIiB8IHNlZCAncy98Ly9nJ3wgaGVhZCAtLWxpbmVzPS0xYCkKewoJKCRqcHN1aWQsICRqcHNpcCAsICRqcHN0eXBlKSA9IG0vKFxTKylccysoXFMrKVxzKyhcUyspLzsKCXByaW50ICJcdCxcbiIgaWYgbm90ICRmaXJzdDsKCSRmaXJzdCA9IDA7CglwcmludCAiXHR7XG4iOwoJcHJpbnQgIlx0</value>
+                </macro>
+                <macro>
+                    <macro>{$JPSDISCOVER3}</macro>
+                    <value>XHRcInsjSlBTVUlEfVwiOlwiJGpwc3VpZFwiLFxuIjsKCXByaW50ICJcdFx0XCJ7I0pQU0lQfVwiOlwiJGpwc2lwXCIsXG4iOwogICAgICAgIHByaW50ICJcdFx0XCJ7I0pQU1RZUEV9XCI6XCIkanBzdHlwZVwiXG4iOwoJcHJpbnQgIlx0fVxuIjsKfQpwcmludCAiXVxuIjsK</value>
+                </macro>
+                <macro>
+                    <macro>{$JPSINV1}</macro>
+                    <value>JGpwc3VpZCA9ICRFTlZ7J0pQUyd9Ow0KZm9yIChgcHNxbC5leGUgLVUgamJsIC1kIGpibCAtdCAtYyAic2VsZWN0IHBhLnBlcmlwaGVyYWxfaWQsIHBhLmlwLCBwcy5zdGF0dXMsIHBhLnR5cGUgZnJvbSBqcHNfYXV0aGVudGljYXRlZF9kZXZpY2UgcGEgam9pbiBqcHNfcGVyaXBoZXJhbF9zdGF0dXMgcHMgb24gcHMucGVyaXBoZXJhbF9</value>
+                    <description>$jpsuid = $ENV{'JPS'};for (`psql.exe -U jbl -d jbl -t -c &quot;select pa.peripheral_id, pa.ip, ps.status, pa.type from jps_authenticated_device pa join jps_peripheral_status ps on ps.peripheral_id = pa.peripheral_id where pa.peripheral_id = \'$jpsuid\' order by ps.last_modification_date_ts desclimit 1&quot; | sed 's/|//g'| head --lines=-1`){($jpsuid, $jpsip , $jpsstatus, $jpstype ) = m/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/;print &quot;\t{\n&quot;;print &quot;\t\t\&quot;uid\&quot;:\&quot;$jpsuid\&quot;,\n&quot;;print &quot;\t\t\&quot;ip\&quot;:\&quot;$jpsip\&quot;,\n&quot;;print &quot;\t\t\&quot;status\&quot;:\&quot;$jpsstatus\&quot;,\n&quot;;print &quot;\t\t\&quot;type\&quot;:\&quot;$jpstype\&quot;\n&quot;;print &quot;\t}\n&quot;;}</description>
+                </macro>
+                <macro>
+                    <macro>{$JPSINV2}</macro>
+                    <value>pZCA9IHBhLnBlcmlwaGVyYWxfaWQgd2hlcmUgcGEucGVyaXBoZXJhbF9pZCA9IFwnJGpwc3VpZFwnIG9yZGVyIGJ5IHBzLmxhc3RfbW9kaWZpY2F0aW9uX2RhdGVfdHMgZGVzYw0KbGltaXQgMSIgfCBzZWQgJ3MvfC8vZyd8IGhlYWQgLS1saW5lcz0tMWApDQp7KCRqcHN1aWQsICRqcHNpcCAsICRqcHNzdGF0dXMsICRqcHN0eXBlICkgPS</value>
+                </macro>
+                <macro>
+                    <macro>{$JPSINV3}</macro>
+                    <value>BtLyhcUyspXHMrKFxTKylccysoXFMrKVxzKyhcUyspLztwcmludCAiXHR7XG4iO3ByaW50ICJcdFx0XCJ1aWRcIjpcIiRqcHN1aWRcIixcbiI7cHJpbnQgIlx0XHRcImlwXCI6XCIkanBzaXBcIixcbiI7cHJpbnQgIlx0XHRcInN0YXR1c1wiOlwiJGpwc3N0YXR1c1wiLFxuIjtwcmludCAiXHRcdFwidHlwZVwiOlwiJGpwc3R5cGVcIlxuI</value>
+                </macro>
+                <macro>
+                    <macro>{$JPSINV4}</macro>
+                    <value>jtwcmludCAiXHR9XG4iO30=</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>

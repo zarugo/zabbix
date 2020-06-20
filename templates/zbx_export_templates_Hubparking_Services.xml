@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2020-06-20T12:50:35Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Hubparking Services</template>
+            <name>Template Hubparking Services</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>EBB General Monitoring</name>
+                </application>
+                <application>
+                    <name>Services</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>JMS Version</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;curl -s -m 5 --header accept:application/json 127.0.0.1:8080/janus/api/version&quot;]</key>
+                    <delay>1h</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>EBB General Monitoring</name>
+                        </application>
+                        <application>
+                            <name>Services</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.item</params>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>JBL Version</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;curl -s -m 5 --header accept:application/json 127.0.0.1:9999/jbl/console/versions&quot;]</key>
+                    <delay>1h</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>EBB General Monitoring</name>
+                        </application>
+                        <application>
+                            <name>Services</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.version</params>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>JPS Devices (Total/Offline)</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>system.run[c:\cygwin64\bin\bash.exe -l -c &quot;export PGPASSWORD=jbl; echo {$JPS1}{$JPS2}{$JPS3}| base64 -d | perl&quot;]</key>
+                    <delay>15s</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>EBB General Monitoring</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.[*]</params>
+                        </step>
+                        <step>
+                            <type>REGEX</type>
+                            <params>(\[&quot;)(\d*)(&quot;,&quot;)(\d*)(&quot;\])
+\4 / \2</params>
+                        </step>
+                    </preprocessing>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Hubparking Service Discovery</name>
+                    <type>ZABBIX_ACTIVE</type>
+                    <key>service.discovery</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#SERVICE.NAME}</macro>
+                                <value>@Windows service names for discovery (JBL)</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <lifetime>7d</lifetime>
+                    <description>Discovery of Windows services of different types as defined in global regular expressions &quot;Windows service names for discovery  (JBL)</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>State of service &quot;{#SERVICE.NAME}&quot;</name>
+                            <type>ZABBIX_ACTIVE</type>
+                            <key>service.info[{#SERVICE.NAME},state]</key>
+                            <delay>15s</delay>
+                            <applications>
+                                <application>
+                                    <name>EBB General Monitoring</name>
+                                </application>
+                                <application>
+                                    <name>Services</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>Windows service state</name>
+                            </valuemap>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#3)}&lt;&gt;0</expression>
+                                    <name>Service &quot;{#SERVICE.NAME}&quot; ({#SERVICE.DISPLAYNAME}) is not running (startup type {#SERVICE.STARTUPNAME})</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$JPS1}</macro>
+                    <value>DQpmb3IgKGBwc3FsLmV4ZSAtVSBqYmwgLWQgamJsIC10IC1jICJzZWxlY3QgKHNlbGVjdCBjb3VudCgqKQ0KZnJvbSBqcHNfcGVyaXBoZXJhbF9zdGF0dXMganBzLA0KanBzX2F1dGhlbnRpY2F0ZWRfZGV2aWNlIGphcA0Kd2hlcmUganBzLnBlcmlwaGVyYWxfaWQgPSBqYXAucGVyaXBoZXJhbF9pZA0KYW5kIGpwcy5zdGF0dXMgPSAnT2Z</value>
+                    <description>for (`psql.exe -U jbl -d jbl -t -c &quot;select (select count(*)from jps_peripheral_status jps,jps_authenticated_device japwhere jps.peripheral_id = jap.peripheral_idand jps.status = 'Offline') as offline, count(*) as totalfrom jps_peripheral_status jps,jps_authenticated_device japwhere jps.peripheral_id = jap.peripheral_id&quot; | sed 's/|//g'| head --lines=-1`){($offlinejps, $totaljps) = m/(\S+)\s+(\S+)/;print &quot;\t{\n&quot;;print &quot;\t\t\&quot;offline\&quot;:\&quot;$offlinejps\&quot;,\n&quot;;print &quot;\t\t\&quot;total\&quot;:\&quot;$totaljps\&quot;\n&quot;;print &quot;\t}\n&quot;;}</description>
+                </macro>
+                <macro>
+                    <macro>{$JPS2}</macro>
+                    <value>mbGluZScpIGFzIG9mZmxpbmUsIGNvdW50KCopIGFzIHRvdGFsDQpmcm9tIGpwc19wZXJpcGhlcmFsX3N0YXR1cyBqcHMsDQpqcHNfYXV0aGVudGljYXRlZF9kZXZpY2UgamFwDQp3aGVyZSBqcHMucGVyaXBoZXJhbF9pZCA9IGphcC5wZXJpcGhlcmFsX2lkIiB8IHNlZCAncy98Ly9nJ3wgaGVhZCAtLWxpbmVzPS0xYCkNCnsJDQooJG9mZm</value>
+                </macro>
+                <macro>
+                    <macro>{$JPS3}</macro>
+                    <value>xpbmVqcHMsICR0b3RhbGpwcykgPSBtLyhcUyspXHMrKFxTKykvOwkNCnByaW50ICJcdHtcbiI7CQ0KcHJpbnQgIlx0XHRcIm9mZmxpbmVcIjpcIiRvZmZsaW5lanBzXCIsXG4iOwkNCnByaW50ICJcdFx0XCJ0b3RhbFwiOlwiJHRvdGFsanBzXCJcbiI7CQ0KcHJpbnQgIlx0fVxuIjsNCn0NCg==</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <value_maps>
+        <value_map>
+            <name>Windows service state</name>
+            <mappings>
+                <mapping>
+                    <value>0</value>
+                    <newvalue>Running</newvalue>
+                </mapping>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>Paused</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>Start pending</newvalue>
+                </mapping>
+                <mapping>
+                    <value>3</value>
+                    <newvalue>Pause pending</newvalue>
+                </mapping>
+                <mapping>
+                    <value>4</value>
+                    <newvalue>Continue pending</newvalue>
+                </mapping>
+                <mapping>
+                    <value>5</value>
+                    <newvalue>Stop pending</newvalue>
+                </mapping>
+                <mapping>
+                    <value>6</value>
+                    <newvalue>Stopped</newvalue>
+                </mapping>
+                <mapping>
+                    <value>7</value>
+                    <newvalue>Unknown</newvalue>
+                </mapping>
+                <mapping>
+                    <value>255</value>
+                    <newvalue>No such service</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
+</zabbix_export>
