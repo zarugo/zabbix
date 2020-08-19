@@ -1,3 +1,5 @@
+#perl script to fetch from the database the status of the peripherals
+
 for (`psql.exe -U jbl -d jbl -t -c "select (select count(*) from jps_peripheral_status jps,
 jps_authenticated_device jap
 where jps.peripheral_id = jap.peripheral_id
